@@ -6,7 +6,7 @@
 /*   By: mvassall <mvassall@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/05 17:39:27 by mvassall          #+#    #+#             */
-/*   Updated: 2025/07/05 19:17:34 by mvassall         ###   ########.fr       */
+/*   Updated: 2025/07/05 19:20:20 by mvassall         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,8 @@ void *philosopher_routine(void *args)
             break ;            
         if (eating_interval(phi) != 0)
             break ;
-        phi->
+        phi->status = SLEEPING;
+        pthread_mutex_unlock(&phi->mtx);
     }
     phi->status = DIED;
     pthread_mutex_unlock(&phi->mtx);
