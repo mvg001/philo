@@ -6,7 +6,7 @@
 /*   By: mvassall <mvassall@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/05 17:39:27 by mvassall          #+#    #+#             */
-/*   Updated: 2025/07/06 16:02:09 by mvassall         ###   ########.fr       */
+/*   Updated: 2025/07/06 20:02:54 by mvassall         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,8 +89,7 @@ void *philosopher_routine(void *args)
     t_philo *phi;
 
     phi = (t_philo *)args;
-    phi->status = PHI_THINKING;
-    philo_print(phi);
+    change_phi_status(phi, PHI_THINKING);
     phi->n_eating_counter = 0;
     phi->death_ts = get_time_us() + phi->cfg->time_to_die_us;
     while (1)

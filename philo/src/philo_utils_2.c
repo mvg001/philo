@@ -6,7 +6,7 @@
 /*   By: mvassall <mvassall@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/05 13:43:51 by mvassall          #+#    #+#             */
-/*   Updated: 2025/07/05 16:41:31 by mvassall         ###   ########.fr       */
+/*   Updated: 2025/07/06 20:06:24 by mvassall         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,16 +27,18 @@ int i_prev(int n, int modulus)
 
 char	*get_philo_status_msg(t_philo_status status)
 {
-    if (status == GOT_A_FORK)
+    if (status == PHI_GOT_A_FORK)
         return ("has taken a fork");
-    else if (status == EATING)
+    else if (status == PHI_EATING)
         return ("is eating");
-    else if (status == SLEEPING)
+    else if (status == PHI_SLEEPING)
         return ("is sleeping");
-    else if (status == THINKING)
+    else if (status == PHI_THINKING)
         return ("is thinking");
-    else if (status == DIED)
+    else if (status == PHI_DIED)
         return ("died");
+    else if (status == PHI_ATE_ENOUGH)
+        return ("ate enough");
     return ("invalid status");
 }
 
@@ -56,7 +58,7 @@ void    philo_print(t_philo *p)
         return ;
     printf("%ld %d %s\n", get_ts_us(p->cfg) / 1000, p->id,
         get_philo_status_msg(p->status));
-    if (p->status == GOT_A_FORK)
+    if (p->status == PHI_GOT_A_FORK)
         printf("%ld %d %s\n", get_ts_us(p->cfg) / 1000, p->id,
             get_philo_status_msg(p->status));
     pthread_mutex_unlock(&p->cfg->print_mutex);
