@@ -6,7 +6,7 @@
 /*   By: mvassall <mvassall@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/05 11:01:43 by mvassall          #+#    #+#             */
-/*   Updated: 2025/07/05 19:07:06 by mvassall         ###   ########.fr       */
+/*   Updated: 2025/07/06 15:58:15 by mvassall         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,13 +19,21 @@
 
 const int  delta_time_us = 5000; // 5 ms
 
+typedef enum e_exit_status
+{
+    EX_OK,
+    EX_PHILOSOPHER_DEAD,
+    EX_TIMEOUT,
+}   t_exit_status;
+
 typedef enum e_philo_status
 {
-    GOT_A_FORK,
-    EATING,
-    SLEEPING,
-    THINKING,
-    DIED,
+    PHI_GOT_A_FORK,
+    PHI_EATING,
+    PHI_SLEEPING,
+    PHI_THINKING,
+    PHI_DIED,
+    PHI_ATE_ENOUGH,
 }   t_philo_status;
 
 typedef enum e_arg_name
@@ -85,6 +93,10 @@ t_cfg_philo *init_cfg_philo(int *args);
 void    start_all_philos(t_cfg_philo *cfg);
 int has_someone_died(t_cfg_philo *cfg);
 void    increment_dead_counter(t_cfg_philo *cfg);
+int  min(uint64_t a, uint64_t b);
+
+// philo_utils_4
+void change_phi_status(t_philo *phi, t_philo_status new_status);
 
 // philo_1.c
 void *philosopher_routine(void *args);

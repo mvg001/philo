@@ -6,7 +6,7 @@
 /*   By: mvassall <mvassall@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/05 16:39:42 by mvassall          #+#    #+#             */
-/*   Updated: 2025/07/05 19:01:28 by mvassall         ###   ########.fr       */
+/*   Updated: 2025/07/06 15:58:40 by mvassall         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,7 @@ void    start_all_philos(t_cfg_philo *cfg)
     while (++i < cfg->n_philosophers)
     {
         cfg->philos[i].id = i + 1;
-        cfg->philos[i].status = THINKING;
+        cfg->philos[i].status = PHI_THINKING;
         cfg->philos[i].n_eating_counter = 0;
         cfg->philos[i].cfg = cfg;
         pthread_mutex_init(&cfg->philos[i].mtx, NULL);
@@ -75,3 +75,9 @@ void    increment_dead_counter(t_cfg_philo *cfg)
     pthread_mutex_unlock(&cfg->m_dead_counter);
 }
 
+int  min(uint64_t a, uint64_t b)
+{
+    if (a < b)
+        return (a);
+    return (b);
+}
