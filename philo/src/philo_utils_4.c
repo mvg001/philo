@@ -6,15 +6,19 @@
 /*   By: mvassall <mvassall@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/06 15:56:04 by mvassall          #+#    #+#             */
-/*   Updated: 2025/07/06 20:01:31 by mvassall         ###   ########.fr       */
+/*   Updated: 2025/07/08 14:28:41 by mvassall         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
+#include <pthread.h>
+#include <stdlib.h>
 
 void change_phi_status(t_philo *phi, t_philo_status new_status)
 {
+    pthread_mutex_lock(&phi->mtx);
     phi->status = new_status;
+    pthread_mutex_unlock(&phi->mtx);
     philo_print(phi);
 }
 
@@ -45,4 +49,21 @@ int get_next_to_eat(t_cfg_philo *cfg)
                 i_found = i;
     }
     return (i_found);
+}
+
+void clean_up(t_cfg_philo *cfg)
+{
+    int i;
+
+    if (cfg == NULL)
+        return ;
+    pthread_mutex_destroy(&cfg->print_mutex);
+    pthread_mutex_destroy(&cfg->m_dead_counter);
+    i = -1;
+    while (++i < cfg->n_philosophers)
+    {
+        pthread_mutex_destroy(&cfg->philos[i].mtx);
+    }
+    free(cfg->philos);
+    free(cfg);
 }

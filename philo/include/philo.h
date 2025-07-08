@@ -6,7 +6,7 @@
 /*   By: mvassall <mvassall@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/05 11:01:43 by mvassall          #+#    #+#             */
-/*   Updated: 2025/07/06 15:58:15 by mvassall         ###   ########.fr       */
+/*   Updated: 2025/07/08 18:27:28 by mvassall         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
 # include <sys/time.h>
 # include <pthread.h>
 
-const int  delta_time_us = 5000; // 5 ms
+# define DELTA_TIME_US 5000 // 5 ms
 
 typedef enum e_exit_status
 {
@@ -28,12 +28,12 @@ typedef enum e_exit_status
 
 typedef enum e_philo_status
 {
-    PHI_GOT_A_FORK,
+    PHI_WAIT,
     PHI_EATING,
     PHI_SLEEPING,
     PHI_THINKING,
     PHI_DIED,
-    PHI_ATE_ENOUGH,
+    PHI_FINISH,
 }   t_philo_status;
 
 typedef enum e_arg_name
@@ -47,6 +47,12 @@ typedef enum e_arg_name
 
 struct s_philo ;
 
+typedef struct s_exit
+{
+    int id;
+    t_exit_status   ex_status;
+} t_exit;
+
 struct s_cfg_philo
 {
     int n_philosophers;
@@ -54,23 +60,25 @@ struct s_cfg_philo
     int time_to_eat_us;        // usec
     int time_to_sleep_us;      // usec
     int n_eating_rounds;
+    uint64_t    start_ts;       // usec
     pthread_mutex_t print_mutex;
     pthread_mutex_t m_dead_counter;
     int dead_counter;
-    uint64_t    start_ts;       // usec
     struct s_philo *philos; // array of philosophers
+    
 };
 typedef struct s_cfg_philo    t_cfg_philo;
 
 struct s_philo
 {
+    t_cfg_philo     *cfg;
     pthread_t       thread;
     int             id;
-    pthread_mutex_t mtx;
     uint64_t        death_ts;      // usec
     t_philo_status  status;
     int             n_eating_counter;
-    t_cfg_philo           *cfg;    
+    pthread_mutex_t mtx_next_state;
+    t_philo_status  next_state;
 };
 typedef struct s_philo  t_philo;
 
@@ -97,7 +105,13 @@ int  min(uint64_t a, uint64_t b);
 
 // philo_utils_4
 void change_phi_status(t_philo *phi, t_philo_status new_status);
+//static int  check_candidate(t_cfg_philo *cfg, int i);
+int get_next_to_eat(t_cfg_philo *cfg);
+void clean_up(t_cfg_philo *cfg);
 
-// philo_1.c
-void *philosopher_routine(void *args);
+// philosopher.c
+void *philosopher_routine(void *arg);
+
+// monitor.c
+void monitoring(t_cfg_philo *cfg);
 #endif

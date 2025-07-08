@@ -6,12 +6,13 @@
 #    By: mvassall <mvassall@student.42madrid.com    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/12/11 11:05:02 by user1             #+#    #+#              #
-#    Updated: 2025/07/05 11:01:29 by mvassall         ###   ########.fr        #
+#    Updated: 2025/07/07 16:34:39 by mvassall         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 CC := cc
-CFLAGS := -Wall -Werror -Wextra -g3 -fsanitize=threads
+CFLAGS := -Wall -Werror -Wextra -pthread -g -fsanitize=thread
+#CFLAGS := -Wall -Werror -Wextra -g3
 RM := /bin/rm -f
 SRC_DIRS := ./src
 BUILD_DIR := ./build
@@ -30,7 +31,7 @@ show:
 	echo $(OBJS)
 
 $(NAME): $(OBJS)
-	$(CC) -o $(NAME) $(OBJS)
+	$(CC) $(CFLAGS) -o $(NAME) $(OBJS)
 
 $(OBJS): include/philo.h
 
