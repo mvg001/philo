@@ -6,13 +6,14 @@
 /*   By: mvassall <mvassall@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/30 13:43:55 by mvassall          #+#    #+#             */
-/*   Updated: 2025/07/07 11:04:26 by mvassall         ###   ########.fr       */
+/*   Updated: 2025/07/09 17:37:31 by mvassall         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 #include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 int	ft_is_int(char *str)
 {
@@ -60,23 +61,15 @@ int	ft_atoi(const char *str)
 	return (val);
 }
 
-int	check_args(int ac, char **av)
+int	get_args(int ac, char **av, int *values)
 {
 	if (ac != 5 && ac != 6)
-	{
-
 		return (0);		
-	}
 	if (!ft_is_int(av[1]) || !ft_is_int(av[2]) || !ft_is_int(av[3])
 		|| !ft_is_int(av[4]))
 		return (0);
 	if (ac == 6 && !ft_is_int(av[5]))
 		return (0);
-	return (1);
-}
-
-int	get_args(int ac, char **av, int *values)
-{
 	memset(values, 0, 5 * sizeof(int));
 	values[N_PHILOSOPHERS] = ft_atoi(av[1]);
 	values[TIME_TO_DIE] = ft_atoi(av[2]);
@@ -103,3 +96,14 @@ uint64_t	get_time_us(void)
 	return ((tv.tv_sec * (uint64_t)1000000) + tv.tv_usec);
 }
 
+void	*ft_calloc(size_t n_members, size_t size)
+{
+	unsigned long tsize;
+	void *ptr;
+
+	tsize = n_members * size;
+	ptr = malloc(tsize);
+	if (ptr != NULL)
+		memset(ptr, 0, tsize);
+	return (ptr);
+}

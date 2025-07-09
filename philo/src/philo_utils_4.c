@@ -6,7 +6,7 @@
 /*   By: mvassall <mvassall@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/06 15:56:04 by mvassall          #+#    #+#             */
-/*   Updated: 2025/07/08 14:28:41 by mvassall         ###   ########.fr       */
+/*   Updated: 2025/07/09 16:18:59 by mvassall         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,12 +14,18 @@
 #include <pthread.h>
 #include <stdlib.h>
 
-void change_phi_status(t_philo *phi, t_philo_status new_status)
+int change_phi_status(t_philo *phi, t_philo_status new_status)
 {
-    pthread_mutex_lock(&phi->mtx);
     phi->status = new_status;
-    pthread_mutex_unlock(&phi->mtx);
-    philo_print(phi);
+    if (new_status == PHI_EATING)
+        return (philo_print(phi, "is eating"));
+    if (new_status == PHI_THINKING)
+        return (philo_print(phi, "is thinking"));
+    if (new_status == PHI_SLEEPING)
+        return (philo_print(phi, "is sleeping"));
+    if (new_status == PHI_DIED)
+        return (philo_print(phi, "died"));
+    return (philo_print(phi, "is undefined"));
 }
 
 static int  check_candidate(t_cfg_philo *cfg, int i)
@@ -61,9 +67,8 @@ void clean_up(t_cfg_philo *cfg)
     pthread_mutex_destroy(&cfg->m_dead_counter);
     i = -1;
     while (++i < cfg->n_philosophers)
-    {
-        pthread_mutex_destroy(&cfg->philos[i].mtx);
-    }
+        pthread_mutex_destroy(cfg->forks + i);
+    free(cfg->forks);
     free(cfg->philos);
     free(cfg);
 }

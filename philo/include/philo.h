@@ -6,7 +6,7 @@
 /*   By: mvassall <mvassall@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/05 11:01:43 by mvassall          #+#    #+#             */
-/*   Updated: 2025/07/08 18:27:28 by mvassall         ###   ########.fr       */
+/*   Updated: 2025/07/09 17:38:12 by mvassall         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,13 +59,14 @@ struct s_cfg_philo
     int time_to_die_us;        // usec
     int time_to_eat_us;        // usec
     int time_to_sleep_us;      // usec
+    int time_to_think_us;      // usec
     int n_eating_rounds;
     uint64_t    start_ts;       // usec
     pthread_mutex_t print_mutex;
     pthread_mutex_t m_dead_counter;
     int dead_counter;
     struct s_philo *philos; // array of philosophers
-    
+    pthread_mutex_t *forks;
 };
 typedef struct s_cfg_philo    t_cfg_philo;
 
@@ -75,36 +76,39 @@ struct s_philo
     pthread_t       thread;
     int             id;
     uint64_t        death_ts;      // usec
-    t_philo_status  status;
     int             n_eating_counter;
-    pthread_mutex_t mtx_next_state;
-    t_philo_status  next_state;
+    t_philo_status  status;
 };
 typedef struct s_philo  t_philo;
 
+typedef enum e_op_forks
+{
+    FORK_TAKE,
+    FORK_PUT,
+} t_op_forks;
 // philo_utils_1
 int	ft_is_int(char *str);
 int	ft_atoi(const char *str);
-int	check_args(int ac, char **av);
 int         get_args(int ac, char **av, int *values);
 uint64_t	get_time_us(void);
+void	*ft_calloc(size_t n_members, size_t size);
 
 // philo_utils_2
-int i_next(int n, int modulus);
-int i_prev(int n, int modulus);
-char    *get_philo_status_msg(t_philo_status status);
+int i_next(int i, int modulus);
+int i_prev(int i, int modulus);
 uint64_t    get_ts_us(t_cfg_philo *cfg);
-void    philo_print(t_philo *p);
+int    philo_print(t_philo *p, char *message);
+int  min(uint64_t a, uint64_t b);
 
 // philo_utils_3
 t_cfg_philo *init_cfg_philo(int *args);
 void    start_all_philos(t_cfg_philo *cfg);
 int has_someone_died(t_cfg_philo *cfg);
 void    increment_dead_counter(t_cfg_philo *cfg);
-int  min(uint64_t a, uint64_t b);
+
 
 // philo_utils_4
-void change_phi_status(t_philo *phi, t_philo_status new_status);
+int change_phi_status(t_philo *phi, t_philo_status new_status);
 //static int  check_candidate(t_cfg_philo *cfg, int i);
 int get_next_to_eat(t_cfg_philo *cfg);
 void clean_up(t_cfg_philo *cfg);

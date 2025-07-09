@@ -6,7 +6,7 @@
 /*   By: mvassall <mvassall@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/05 13:43:51 by mvassall          #+#    #+#             */
-/*   Updated: 2025/07/06 20:06:24 by mvassall         ###   ########.fr       */
+/*   Updated: 2025/07/09 15:37:05 by mvassall         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,31 +15,14 @@
 #include <stdint.h>
 #include <stdio.h>
 
-int i_next(int n, int modulus)
+int i_next(int i, int modulus)
 {
-    return ((n + 1) % modulus);
+    return ((i + 1) % modulus);
 }
 
-int i_prev(int n, int modulus)
+int i_prev(int i, int modulus)
 {
-    return ((n + modulus - 1) % modulus);
-}
-
-char	*get_philo_status_msg(t_philo_status status)
-{
-    if (status == PHI_GOT_A_FORK)
-        return ("has taken a fork");
-    else if (status == PHI_EATING)
-        return ("is eating");
-    else if (status == PHI_SLEEPING)
-        return ("is sleeping");
-    else if (status == PHI_THINKING)
-        return ("is thinking");
-    else if (status == PHI_DIED)
-        return ("died");
-    else if (status == PHI_ATE_ENOUGH)
-        return ("ate enough");
-    return ("invalid status");
+    return ((i - 1 + modulus) % modulus);
 }
 
 /**
@@ -50,16 +33,19 @@ uint64_t    get_ts_us(t_cfg_philo *cfg)
     return ((get_time_us() - cfg->start_ts));
 }
 
-void    philo_print(t_philo *p)
+int    philo_print(t_philo *philo, char *message)
 {
-    if (p == NULL)
-        return ;
-    if (pthread_mutex_lock(&p->cfg->print_mutex) != 0)
-        return ;
-    printf("%ld %d %s\n", get_ts_us(p->cfg) / 1000, p->id,
-        get_philo_status_msg(p->status));
-    if (p->status == PHI_GOT_A_FORK)
-        printf("%ld %d %s\n", get_ts_us(p->cfg) / 1000, p->id,
-            get_philo_status_msg(p->status));
-    pthread_mutex_unlock(&p->cfg->print_mutex);
+    if (pthread_mutex_lock(&philo->cfg->print_mutex) != 0)
+        return (0);
+    printf("%ld %d %s\n", get_ts_us(philo->cfg) / 1000,
+        philo->id + 1, message);
+    pthread_mutex_unlock(&philo->cfg->print_mutex);
+    return (0);
+}
+
+int  min(uint64_t a, uint64_t b)
+{
+    if (a < b)
+        return (a);
+    return (b);
 }

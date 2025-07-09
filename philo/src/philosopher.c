@@ -6,7 +6,7 @@
 /*   By: mvassall <mvassall@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/05 17:39:27 by mvassall          #+#    #+#             */
-/*   Updated: 2025/07/07 11:43:15 by mvassall         ###   ########.fr       */
+/*   Updated: 2025/07/09 17:59:58 by mvassall         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,34 @@
 #include <stdint.h>
 #include <unistd.h>
 
+static t_exit_status    op_forks(t_philo *phi, t_op_forks op)
+{
+    int next_i;
+    int prev_i;
+    int (*f)(pthread_mutex_t *);
+
+    f = pthread_mutex_unlock;
+    if (op == FORK_TAKE)
+        f = pthread_mutex_lock;
+    next_i = i_next(phi->id, phi->cfg->n_philosophers);
+    if (phi->cfg->n_philosophers % 2 == 0
+        || phi->id != phi->cfg->n_philosophers - 1)
+    {
+        f(phi->cfg->forks + phi->id);
+        op == FORK_TAKE && philo_print(phi, "has taken a fork");
+        if (phi->cfg->n_philosophers == 1)
+            return (EX_OK);
+        f(phi->cfg->forks + next_i);
+        op == FORK_TAKE && philo_print(phi, "has taken a fork");
+        return (EX_OK);
+    }
+    prev_i = i_prev(phi->id, phi->cfg->n_philosophers);
+    f(phi->cfg->forks + prev_i);
+    op == FORK_TAKE && philo_print(phi, "has taken a fork");
+    f(phi->cfg->forks + phi->id);
+    op == FORK_TAKE && philo_print(phi, "has taken a fork");
+    return (EX_OK);        
+}
 static t_exit_status    eating_loop(t_philo *phi, uint64_t end_eating_ts)
 {
     uint64_t    ts;
@@ -22,22 +50,17 @@ static t_exit_status    eating_loop(t_philo *phi, uint64_t end_eating_ts)
     while (1)
     {
         if (has_someone_died(phi->cfg))
-        {
-            pthread_mutex_unlock(&phi->mtx);
-            return (EX_PHILOSOPHER_DEAD);
-        }
+            return (op_forks(phi, FORK_PUT), EX_PHILOSOPHER_DEAD);
         ts = get_time_us();
         if (ts >= phi->death_ts)
         {
             change_phi_status(phi, PHI_DIED);
-            pthread_mutex_unlock(&phi->mtx);
-            return (EX_TIMEOUT) ;
+            return (op_forks(phi, FORK_PUT), EX_TIMEOUT) ;
         }
         if (ts >= end_eating_ts)
         {
             phi->n_eating_counter++;
-            pthread_mutex_unlock(&phi->mtx);
-            return (EX_OK);
+            return (op_forks(phi, FORK_PUT), EX_OK);
         }
         usleep(min(end_eating_ts - ts, DELTA_TIME_US));
     }
@@ -48,12 +71,16 @@ static t_exit_status  eating(t_philo *phi)
     uint64_t    end_eating_ts;
     uint64_t    ts;
 
-    pthread_mutex_lock(&phi->mtx);
+    if (get_time_us() >= phi->death_ts)
+    {
+        change_phi_status(phi, PHI_DIED);
+        return (EX_TIMEOUT);
+    }
+    op_forks(phi, FORK_TAKE);
+    change_phi_status(phi, PHI_EATING);
     ts = get_time_us();
     phi->death_ts = ts + phi->cfg->time_to_die_us;
     end_eating_ts = ts + phi->cfg->time_to_eat_us;
-    change_phi_status(phi, PHI_GOT_A_FORK);
-    change_phi_status(phi, PHI_EATING);
     return (eating_loop(phi, end_eating_ts));
 }
 
@@ -63,8 +90,7 @@ static t_exit_status    sleeping(t_philo *phi)
     uint64_t    ts;
 
     end_sleeping_ts = get_time_us() + phi->cfg->time_to_sleep_us;
-    phi->status = PHI_SLEEPING;
-    philo_print(phi);
+    change_phi_status(phi, PHI_SLEEPING);
     while (1)
     {
         if (has_someone_died(phi->cfg))
@@ -72,8 +98,7 @@ static t_exit_status    sleeping(t_philo *phi)
         ts = get_time_us();
         if (ts >= phi->death_ts)
         {
-            phi->status = PHI_DIED;
-            philo_print(phi);
+            change_phi_status(phi, PHI_DIED);
             return (EX_TIMEOUT) ;
         }
         if (ts >= end_sleeping_ts)
@@ -89,8 +114,6 @@ void *philosopher_routine(void *arg)
 
     phi = (t_philo *)arg;
     change_phi_status(phi, PHI_THINKING);
-    phi->n_eating_counter = 0;
-    phi->death_ts = get_time_us() + phi->cfg->time_to_die_us;
     while (1)
     {
         if (eating(phi) != EX_OK || (phi->cfg->n_eating_rounds > 0
@@ -104,9 +127,8 @@ void *philosopher_routine(void *arg)
             increment_dead_counter(phi->cfg);
             break ;
         }
-        phi->status = PHI_THINKING;
-        philo_print(phi);
-        usleep(DELTA_TIME_US);
+        change_phi_status(phi, PHI_THINKING);
+        usleep(phi->cfg->time_to_think_us);
     }
     return (NULL);
 }
