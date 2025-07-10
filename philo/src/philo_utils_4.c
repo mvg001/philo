@@ -6,7 +6,7 @@
 /*   By: mvassall <mvassall@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/06 15:56:04 by mvassall          #+#    #+#             */
-/*   Updated: 2025/07/09 16:18:59 by mvassall         ###   ########.fr       */
+/*   Updated: 2025/07/10 15:20:37 by mvassall         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,8 +67,9 @@ void clean_up(t_cfg_philo *cfg)
     pthread_mutex_destroy(&cfg->m_dead_counter);
     i = -1;
     while (++i < cfg->n_philosophers)
-        pthread_mutex_destroy(cfg->forks + i);
-    free(cfg->forks);
+        pthread_mutex_destroy(cfg->m_forks + i);
+    free(cfg->m_forks);
+    free(cfg->is_fork_in_use);
     free(cfg->philos);
     free(cfg);
 }

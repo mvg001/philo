@@ -6,7 +6,7 @@
 /*   By: mvassall <mvassall@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/05 16:39:42 by mvassall          #+#    #+#             */
-/*   Updated: 2025/07/09 18:04:24 by mvassall         ###   ########.fr       */
+/*   Updated: 2025/07/10 14:17:38 by mvassall         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,9 +25,12 @@ static t_cfg_philo *allocate_all(int n_philosophers)
     cfg->philos = ft_calloc(n_philosophers, sizeof(t_philo));
     if (cfg->philos == NULL)
         return (free(cfg), NULL);
-    cfg->forks = ft_calloc(n_philosophers, sizeof(pthread_mutex_t));
-    if (cfg->forks == NULL)
+    cfg->m_forks = ft_calloc(n_philosophers, sizeof(pthread_mutex_t));
+    if (cfg->m_forks == NULL)
         return (free(cfg->philos), free(cfg), NULL);
+    cfg->is_fork_in_use = ft_calloc(n_philosophers, sizeof(int));
+    if (cfg->is_fork_in_use == NULL)
+        return (free(cfg->m_forks), free(cfg->philos), free(cfg), NULL);
     return (cfg);
 }
 
@@ -51,7 +54,10 @@ t_cfg_philo *init_cfg_philo(int *args)
     cfg->start_ts = get_time_us();
     i = -1;
     while (++i < cfg->n_philosophers)
-        pthread_mutex_init(cfg->forks + i, NULL);
+    {
+        pthread_mutex_init(cfg->m_forks + i, NULL);
+        cfg->is_fork_in_use[i] = 0;
+    }
     return (cfg);
 }
 
@@ -66,6 +72,9 @@ void    start_all_philos(t_cfg_philo *cfg)
         cfg->philos[i].n_eating_counter = 0;
         cfg->philos[i].cfg = cfg;
         cfg->philos[i].death_ts = get_time_us() + cfg->time_to_die_us;
+        cfg->philos[i].status = PHI_THINKING;
+        if (i % 2 != 0)
+            cfg->philos[i].status = PHI_EATING;
         pthread_create(&cfg->philos[i].thread, NULL,
             philosopher_routine, cfg->philos + i);
     }

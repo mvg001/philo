@@ -6,7 +6,7 @@
 /*   By: mvassall <mvassall@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/05 11:01:43 by mvassall          #+#    #+#             */
-/*   Updated: 2025/07/09 17:38:12 by mvassall         ###   ########.fr       */
+/*   Updated: 2025/07/10 15:10:19 by mvassall         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,6 @@ typedef enum e_exit_status
 
 typedef enum e_philo_status
 {
-    PHI_WAIT,
     PHI_EATING,
     PHI_SLEEPING,
     PHI_THINKING,
@@ -66,7 +65,8 @@ struct s_cfg_philo
     pthread_mutex_t m_dead_counter;
     int dead_counter;
     struct s_philo *philos; // array of philosophers
-    pthread_mutex_t *forks;
+    pthread_mutex_t *m_forks;
+    int *is_fork_in_use;
 };
 typedef struct s_cfg_philo    t_cfg_philo;
 
@@ -106,15 +106,19 @@ void    start_all_philos(t_cfg_philo *cfg);
 int has_someone_died(t_cfg_philo *cfg);
 void    increment_dead_counter(t_cfg_philo *cfg);
 
-
 // philo_utils_4
 int change_phi_status(t_philo *phi, t_philo_status new_status);
 //static int  check_candidate(t_cfg_philo *cfg, int i);
 int get_next_to_eat(t_cfg_philo *cfg);
 void clean_up(t_cfg_philo *cfg);
 
-// philosopher.c
+// philosopher_1.c
 void *philosopher_routine(void *arg);
+
+// philosopher_2.c
+t_exit_status    pass_time(t_philo *phi, uint64_t end_ts);
+t_exit_status   take_forks(t_philo *phi);
+t_exit_status drop_forks(t_philo *phi);
 
 // monitor.c
 void monitoring(t_cfg_philo *cfg);
