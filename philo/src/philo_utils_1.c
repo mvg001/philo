@@ -6,7 +6,7 @@
 /*   By: mvassall <mvassall@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/30 13:43:55 by mvassall          #+#    #+#             */
-/*   Updated: 2025/07/09 17:37:31 by mvassall         ###   ########.fr       */
+/*   Updated: 2025/07/10 19:43:30 by mvassall         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,14 +75,15 @@ int	get_args(int ac, char **av, int *values)
 	values[TIME_TO_DIE] = ft_atoi(av[2]);
 	values[TIME_TO_EAT] = ft_atoi(av[3]);
 	values[TIME_TO_SLEEP] = ft_atoi(av[4]);
+	values[N_EATING_ROUNDS] = 0;
 	if (ac == 6)
 	{
 		values[N_EATING_ROUNDS] = ft_atoi(av[5]);
 		if (values[N_EATING_ROUNDS] < 0)
 			return (0);
 	}
-	if (values[N_PHILOSOPHERS] < 1 || values[TIME_TO_DIE] < 0
-		|| values[TIME_TO_EAT] < 0 || values[TIME_TO_SLEEP] < 0)
+	if (values[N_PHILOSOPHERS] < 1 || values[TIME_TO_DIE] <= 0
+		|| values[TIME_TO_EAT] <= 0 || values[TIME_TO_SLEEP] <= 0)
 		return (0);
 	return (1);
 }

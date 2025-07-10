@@ -6,7 +6,7 @@
 /*   By: mvassall <mvassall@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/05 17:39:27 by mvassall          #+#    #+#             */
-/*   Updated: 2025/07/10 15:11:54 by mvassall         ###   ########.fr       */
+/*   Updated: 2025/07/10 20:07:56 by mvassall         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,17 +14,29 @@
 #include <pthread.h>
 #include <stdint.h>
 #include <unistd.h>
+#include <stdio.h>
+
+t_exit_status check_early_death(t_philo *phi)
+{
+    if (get_time_us() >= phi->death_ts)
+    {
+        change_phi_status(phi, PHI_DIED);
+        return (EX_TIMEOUT);
+    }
+    if (phi->cfg->n_eating_rounds > 0
+        && phi->n_eating_counter > phi->cfg->n_eating_rounds)
+    {
+        change_phi_status(phi, PHI_FINISH);
+        return (EX_PHILOSOPHER_DEAD);
+    }
+    return (EX_OK);    
+}
 
 static t_exit_status  eating(t_philo *phi)
 {
     uint64_t    end_eating_ts;
     t_exit_status   ex_status;
 
-    if (get_time_us() >= phi->death_ts)
-        return (change_phi_status(phi, PHI_DIED), EX_TIMEOUT);
-    if (phi->cfg->n_eating_rounds > 0
-        && phi->n_eating_counter >= phi->cfg->n_eating_rounds)
-        return (EX_PHILOSOPHER_DEAD);
     ex_status = take_forks(phi);
     if (ex_status != EX_OK)
         return (ex_status);
@@ -40,6 +52,8 @@ static t_exit_status  eating(t_philo *phi)
     }
     else if (ex_status == EX_TIMEOUT)
         change_phi_status(phi, PHI_DIED);
+    else
+        phi->status = PHI_FINISH;
     return (ex_status);
 }
 
@@ -57,6 +71,8 @@ static t_exit_status    sleeping(t_philo *phi)
         phi->status = PHI_THINKING;
     else if (ex_status == EX_TIMEOUT)
         change_phi_status(phi, PHI_DIED);
+    else
+        phi->status = PHI_FINISH;
     return (ex_status);
 }
 
@@ -67,14 +83,15 @@ static t_exit_status    thinking(t_philo *phi)
 
     if (get_time_us() >= phi->death_ts)
         return (change_phi_status(phi, PHI_DIED), EX_TIMEOUT);
-    end_thinking_ts = get_time_us()
-        + min(phi->cfg->time_to_sleep_us, phi->cfg->time_to_eat_us);
+    end_thinking_ts = get_time_us() + phi->cfg->time_to_think_us;
     change_phi_status(phi, PHI_THINKING);
     ex_status = pass_time(phi, end_thinking_ts);
     if (ex_status == EX_OK)
         phi->status = PHI_EATING;
     else if (ex_status == EX_TIMEOUT)
         change_phi_status(phi, PHI_DIED);
+    else
+        phi->status = PHI_FINISH;
     return (ex_status);
 }
 

@@ -6,7 +6,7 @@
 /*   By: mvassall <mvassall@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/05 11:01:43 by mvassall          #+#    #+#             */
-/*   Updated: 2025/07/10 15:10:19 by mvassall         ###   ########.fr       */
+/*   Updated: 2025/07/10 19:03:09 by mvassall         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,6 +114,7 @@ void clean_up(t_cfg_philo *cfg);
 
 // philosopher_1.c
 void *philosopher_routine(void *arg);
+t_exit_status check_early_death(t_philo *phi);
 
 // philosopher_2.c
 t_exit_status    pass_time(t_philo *phi, uint64_t end_ts);

@@ -6,7 +6,7 @@
 /*   By: mvassall <mvassall@student.42madrid.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/10 10:58:13 by mvassall          #+#    #+#             */
-/*   Updated: 2025/07/10 14:47:09 by mvassall         ###   ########.fr       */
+/*   Updated: 2025/07/10 20:07:35 by mvassall         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,11 +28,14 @@ t_exit_status    pass_time(t_philo *phi, uint64_t end_ts)
             change_phi_status(phi, PHI_DIED);
             return (EX_TIMEOUT) ;
         }
-        if (ts >= end_ts)
+        if (phi->cfg->n_eating_rounds > 0
+            && phi->n_eating_counter > phi->cfg->n_eating_rounds)
         {
-            phi->n_eating_counter++;
-            return (EX_OK);
+            change_phi_status(phi, PHI_FINISH);
+            return (EX_PHILOSOPHER_DEAD);
         }
+        if (ts >= end_ts)
+            return (EX_OK);
         usleep(min(end_ts - ts, DELTA_TIME_US));
     }
 }
@@ -45,15 +48,10 @@ int set_fork(t_cfg_philo *cfg, int i, int value)
         return (-1);
     pthread_mutex_lock(cfg->m_forks + i);
     rc = 0;
-    if (cfg->is_fork_in_use[i] == 0)
+    if (cfg->is_fork_in_use[i] == 0 || value == 0)
     {
         cfg->is_fork_in_use[i] = value;
         rc = 1;        
-    }
-    else if (value == 0)
-    {
-        cfg->is_fork_in_use[i] = value;
-        rc = 1;
     }
     pthread_mutex_unlock(cfg->m_forks + i);
     return (rc);
@@ -61,12 +59,12 @@ int set_fork(t_cfg_philo *cfg, int i, int value)
 
 t_exit_status   take_forks(t_philo *phi)
 {
+    t_exit_status   ex_status;
     while (1)
     {
-        if (has_someone_died(phi->cfg))
-            return (EX_PHILOSOPHER_DEAD);
-        if (get_time_us() >= phi->death_ts)
-            return (change_phi_status(phi, PHI_DIED), EX_TIMEOUT);
+        ex_status = check_early_death(phi);
+        if (ex_status != EX_OK)
+            return (ex_status);
         if (set_fork(phi->cfg, phi->id, 1) == 1)
         {
             if (phi->cfg->n_philosophers == 1)
@@ -81,7 +79,6 @@ t_exit_status   take_forks(t_philo *phi)
         }
         usleep(DELTA_TIME_US);
     }
-    return (EX_OK);
 }
 
 t_exit_status drop_forks(t_philo *phi)
