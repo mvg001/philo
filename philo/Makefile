@@ -6,7 +6,7 @@
 #    By: mvassall <mvassall@student.42madrid.com    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/12/11 11:05:02 by user1             #+#    #+#              #
-#    Updated: 2025/07/07 16:34:39 by mvassall         ###   ########.fr        #
+#    Updated: 2025/07/11 15:54:36 by mvassall         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -17,7 +17,13 @@ RM := /bin/rm -f
 SRC_DIRS := ./src
 BUILD_DIR := ./build
 
-SRCS := $(shell find $(SRC_DIRS) -name '*.c')
+SRCS := src/main.c \
+	src/philo_utils_1.c \
+	src/philo_utils_2.c \
+	src/philo_utils_3.c \
+	src/philo_utils_4.c \
+	src/philosopher_1.c \
+	src/philosopher_2.c
 
 OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)
 
